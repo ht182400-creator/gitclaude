@@ -38,6 +38,28 @@
  
  - 这会把 `backend` 服务绑定到 `http://localhost:8000`，并将 `REDIS_URL` 环境变量指向 Compose 中的 `redis` 服务。
  - 开发时 `dev.db` 将被创建在 `backend` 目录下；如果更改模型请删除 `backend/dev.db` 以便在下次启动时重建表。
+
+国内网络/镜像加速说明
+- 如果你在国内，直接从 Docker Hub 拉取镜像可能会失败或非常慢。你可以：
+	- 使用国内镜像源（例如阿里云镜像、网易镜像等）替代 `redis` 镜像；
+	- 在 `docker-compose.yml` 中通过环境变量 `REDIS_IMAGE` 覆盖 Redis 镜像，例如：
+
+```powershell
+$Env:REDIS_IMAGE = "registry.cn-hangzhou.aliyuncs.com/library/redis:7"
+docker compose pull
+docker compose up --build -d
+```
+
+ - 我已经添加了一个辅助脚本 `scripts/start-with-mirror.ps1`，它会尝试从几个常见国内镜像拉取 Redis，并在成功后使用该镜像启动 Compose：
+
+```powershell
+.\scripts\start-with-mirror.ps1
+```
+
+ - 如果你使用 Docker Desktop，可在 Settings → Resources → Proxies 中配置 HTTP/HTTPS 代理，确保 Docker 能访问外网镜像仓库，然后重试 `docker compose pull`。
+
+CI / 无需本地 Docker
+- 我已添加 GitHub Actions workflow（`.github/workflows/ci.yml`），CI 会在 GitHub Actions 环境中启动 Redis 服务并运行 `pytest`，无需在本地安装或可访问 Docker Hub。
  
 Security notes (important before production):
 - Use HTTPS for all requests and set cookies with `Secure` and `HttpOnly` for refresh tokens.

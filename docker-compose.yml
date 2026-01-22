@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   redis:
-    image: redis:7-alpine
+    # Allow overriding the Redis image via environment variable for mirror support in restrictive networks
+    image: "${REDIS_IMAGE:-redis:7}"
     ports:
       - "6379:6379"
     healthcheck:
